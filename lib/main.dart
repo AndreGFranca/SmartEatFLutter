@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_eats/components/forms/login_form.dart';
+import 'package:smart_eats/components/screens/menu/menu.dart';
+import 'package:smart_eats/components/screens/usuario/perfil_edit.dart';
+
+import 'models/user/user_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +18,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromRGBO(254, 61, 18, 1),),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(254, 61, 18, 1),
+        ),
         useMaterial3: true,
       ),
-      home: LoginForm(),
+      home: Menu(
+      ),
     );
   }
 }
