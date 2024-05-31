@@ -3,6 +3,7 @@ import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
 import 'package:smart_eats/components/utils/custom_radio_button.dart';
 import 'package:smart_eats/validators/utils_validators.dart';
 
+import '../../../enums/type_user.dart';
 import '../../../models/user/create_user_model.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
@@ -19,13 +20,8 @@ class CreateWorker extends StatefulWidget {
 class _CreateWorkerState extends State<CreateWorker> {
   final _formKey = GlobalKey<FormState>();
 
-  final Map<int, String> _profileValues = {
-    1: 'RH',
-    2: 'Colaborador',
-    3: 'Empresa',
-    4: 'Cozinha',
-  };
-  int _selectedProfile = 1; // Valor padrão do Dropdown
+  final Map<int, String> _profileValues = TypeUser.ProfileValues;
+  int _selectedProfile = 2; // Valor padrão do Dropdown
   int _ativo = 1;
   @override
   void initState() {

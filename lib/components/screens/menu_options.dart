@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
 import 'package:smart_eats/components/screens/confirms.dart';
 import 'package:smart_eats/components/screens/menu/create_menu.dart';
 import 'package:smart_eats/components/screens/usuario/perfil_edit.dart';
 import 'package:smart_eats/components/screens/usuario/workers_list.dart';
+import '../../contexts/user_context.dart';
 import '../../models/user/user_model.dart';
 import '../utils/default_colors.dart';
 import '../utils/menu_item.dart';
@@ -14,6 +16,7 @@ class MenuOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userContext = Provider.of<UserContext>(context);
     return Scaffold(
       appBar: GenericAppBar(
         titleAppBar: 'Menu',
@@ -31,9 +34,10 @@ class MenuOptions extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => PerfilEdit(
                         usuarioModel: UserModel(
-                          Nome: 'a',
-                          Cpf: '123',
-                          Email: 'Teste',
+                          Id: userContext.Id!,
+                          Nome: userContext.Nome!,
+                          Cpf: userContext.Cpf!,
+                          Email: userContext.UserName!,
                         ),
                       ),
                     ),

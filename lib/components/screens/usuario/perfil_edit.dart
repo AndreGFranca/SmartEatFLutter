@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
 import 'package:smart_eats/components/screens/usuario/password_edit.dart';
 import 'package:smart_eats/validators/utils_validators.dart';
 
+import '../../../contexts/user_context.dart';
 import '../../../models/user/user_model.dart';
+import '../../../services/http_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
 
 class PerfilEdit extends StatefulWidget {
   late UserModel? usuarioModel;
+  late HttpService _httpService = HttpService();
 
   PerfilEdit({this.usuarioModel = null, super.key});
 
@@ -36,6 +40,7 @@ class _PerfilEditState extends State<PerfilEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final userContext = Provider.of<UserContext>(context);
     return Form(
       key: _formKey,
       child: Scaffold(
@@ -177,15 +182,29 @@ class _PerfilEditState extends State<PerfilEdit> {
                   children: [
                     ConfirmButton(
                         label: 'Salvar Alterações',
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             widget.usuarioModel = UserModel(
+                              Id: widget.usuarioModel!.Id,
                               Nome: dsNomeController.text,
                               Cpf: dsCpfController.text,
                               Email: dsEmailController.text,
                             );
-                            print(
-                                '${widget.usuarioModel!.Nome},${widget.usuarioModel!.Cpf},${widget.usuarioModel!.Email}');
+
+                            await widget._httpService
+                                .put(
+                              '/usuarios/atualizar/${widget.usuarioModel!.Id}',
+                              widget.usuarioModel!.toJson(),
+                            ).then((value) async {
+                              userContext.PreencheVariaveis(
+                                  widget.usuarioModel!.toJson());
+                              print("Funcionou");
+                              // Navigator.of(context).pushReplacement(
+                              //   MaterialPageRoute(
+                              //     builder: (context) => Menu(),
+                              //   ),
+                              // );
+                            });
                           }
                         })
                   ],

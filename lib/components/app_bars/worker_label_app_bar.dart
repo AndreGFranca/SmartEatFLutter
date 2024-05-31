@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../contexts/user_context.dart';
+import '../../enums/type_user.dart';
 import '../utils/default_colors.dart';
 
 class WorkerLabelAppBar extends StatelessWidget {
-  final String? nomeFuncionario;
-  final String? nomeFuncao;
 
-  const WorkerLabelAppBar({super.key, this.nomeFuncionario, this.nomeFuncao});
+  const WorkerLabelAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userContext = Provider.of<UserContext>(context);
+
     return Row(
       children: [
         Padding(
@@ -38,17 +41,22 @@ class WorkerLabelAppBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Olá, $nomeFuncionario',
-              style: const TextStyle(
-                fontSize: 25,
-                fontFamily: 'Roboto-Regular',
-                fontWeight: FontWeight.bold,
-                height: 1,
+            SizedBox(
+              width: 200,
+              child: Text(
+                'Olá, ${userContext.Nome}',
+                style: const TextStyle(
+                  fontSize: 25,
+                  fontFamily: 'Roboto-Regular',
+                  fontWeight: FontWeight.bold,
+                  height: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
-              '$nomeFuncao',
+              '${TypeUser.ProfileValues[int.parse(userContext.typeUser!)]}',
               style: const TextStyle(
                 fontSize: 15,
                 fontFamily: 'Roboto-Regular',

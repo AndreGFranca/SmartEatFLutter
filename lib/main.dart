@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/forms/login_form.dart';
-import 'package:smart_eats/components/screens/menu/menu.dart';
-import 'package:smart_eats/components/screens/usuario/perfil_edit.dart';
+import 'package:smart_eats/contexts/user_context.dart';
 
-import 'models/user/user_model.dart';
+void main() async {
+  await dotenv.load(fileName: ".env");
+  runApp(
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) => UserContext()),
+    ],
+      child:   const MyApp(),
+    )
 
-void main() {
-  runApp(const MyApp());
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +30,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: Menu(
+      home: LoginForm(
       ),
     );
   }
