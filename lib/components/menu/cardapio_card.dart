@@ -5,12 +5,16 @@ import '../utils/default_colors.dart';
 class CardapioCard extends StatefulWidget {
   final String diaSemana;
   final List<String> pratos;
+  final Function onChange;
+
   // final bool isSelected;
   bool _isSelected = false;
+
   CardapioCard({
     super.key,
     required this.diaSemana,
     required this.pratos,
+    required this.onChange,
     // required this.isSelected,
   });
 
@@ -19,7 +23,6 @@ class CardapioCard extends StatefulWidget {
 }
 
 class _CardapioCardState extends State<CardapioCard> {
-
   // @override
   // void initState() {
   //   super.initState();
@@ -58,9 +61,8 @@ class _CardapioCardState extends State<CardapioCard> {
                   IconButton(
                     onPressed: () {
                       this.widget._isSelected = false;
-                      setState(() {
-
-                      });
+                      widget.onChange(false);
+                      setState(() {});
                     },
                     icon: Icon(Icons.check_circle,
                         color: DefaultColors.primaryColor),
@@ -68,10 +70,10 @@ class _CardapioCardState extends State<CardapioCard> {
                 else
                   IconButton(
                     onPressed: () {
-                      this.widget._isSelected = true;
-                      setState(() {
 
-                      });
+                      this.widget._isSelected = true;
+                      widget.onChange(true);
+                      setState(() {});
                     },
                     icon:
                         Icon(Icons.radio_button_unchecked, color: Colors.grey),

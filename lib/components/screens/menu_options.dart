@@ -62,7 +62,7 @@ class MenuOptions extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WorkersList(),
+                      builder: (context) => WorkersList(companyId: int.parse(userContext.CompanyId!),),
                     ),
                   );
                 },
@@ -73,7 +73,7 @@ class MenuOptions extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CreateMenu(),
+                      builder: (context) => CreateMenu(companyId: int.parse(userContext.CompanyId!),),
                     ),
                   );
                 },

@@ -9,10 +9,12 @@ import '../../../models/user/user_model.dart';
 import '../../../services/http_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
+import '../response_modal.dart';
 
 class PerfilEdit extends StatefulWidget {
   late UserModel? usuarioModel;
   late HttpService _httpService = HttpService();
+  late bool loading = false;
 
   PerfilEdit({this.usuarioModel = null, super.key});
 
@@ -180,30 +182,52 @@ class _PerfilEditState extends State<PerfilEdit> {
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
                 child: Column(
                   children: [
+                    if(!widget.loading)
                     ConfirmButton(
                         label: 'Salvar Alterações',
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            widget.usuarioModel = UserModel(
-                              Id: widget.usuarioModel!.Id,
-                              Nome: dsNomeController.text,
-                              Cpf: dsCpfController.text,
-                              Email: dsEmailController.text,
-                            );
+                            setState(() {
+                              widget.loading = true;
+                            });
 
-                            await widget._httpService
-                                .put(
-                              '/usuarios/atualizar/${widget.usuarioModel!.Id}',
-                              widget.usuarioModel!.toJson(),
-                            ).then((value) async {
-                              userContext.PreencheVariaveis(
-                                  widget.usuarioModel!.toJson());
-                              print("Funcionou");
-                              // Navigator.of(context).pushReplacement(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => Menu(),
-                              //   ),
-                              // );
+                            try {
+                              widget.usuarioModel = UserModel(
+                                Id: widget.usuarioModel!.Id,
+                                Nome: dsNomeController.text,
+                                Cpf: dsCpfController.text,
+                                Email: dsEmailController.text,
+                              );
+
+                              var retorno = await widget._httpService
+                                  .put(
+                                '/usuarios/atualizar/${widget.usuarioModel!.Id}',
+                                widget.usuarioModel!.toJson(),
+                              ).then((value) async {
+                                userContext.PreencheVariaveis(
+                                  widget.usuarioModel!.toJson(),
+                                );
+                                Navigator.push(context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ResponseModal(
+                                      texto: value,
+                                    ),
+                                  ),
+                                );
+                              });
+
+                              print('teste2');
+                            } catch (e) {
+                              var erro = e.toString();
+                              print(erro);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(erro),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              widget.loading = false;
                             });
                           }
                         })

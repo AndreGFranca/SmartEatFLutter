@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_eats/components/forms/login_form.dart';
 import 'package:smart_eats/contexts/user_context.dart';
 
+import 'components/screens/response_modal.dart';
+
 void main() async {
   await dotenv.load(fileName: ".env");
+  final _storage = FlutterSecureStorage();
+  print(await _storage.read(key: 'auth_token'));
+  // Map<String, dynamic> decodedToken = JwtDecoder.decode(value);
+  // userContext.PreencheVariaveis
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(create: (_) => UserContext()),
@@ -30,8 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: LoginForm(
-      ),
+      home: LoginForm(),
     );
   }
 }

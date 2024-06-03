@@ -12,10 +12,10 @@ class Justify extends StatefulWidget {
   Justify({super.key});
 
   @override
-  State<Justify> createState() => _PerfilEditState();
+  State<Justify> createState() => _JustifyState();
 }
 
-class _PerfilEditState extends State<Justify> {
+class _JustifyState extends State<Justify> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedDay;
   final _justificativaController = TextEditingController();

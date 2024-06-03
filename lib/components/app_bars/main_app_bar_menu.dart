@@ -5,35 +5,33 @@ import 'package:smart_eats/components/screens/menu_options.dart';
 import '../utils/default_colors.dart';
 
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppBar({super.key});
+  MainAppBar({super.key, required this.onChange});
+  final Function onChange;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: 65,
-      title: Container(
-        padding: const EdgeInsets.all(0.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            const WorkerLabelAppBar(),
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MenuOptions(),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.menu,
-                  size: 45,
-                  color: DefaultColors.primaryColor,
-                )),
-          ],
-        ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const WorkerLabelAppBar(),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MenuOptions(),
+                  ),
+                ).then((value)async{await onChange();});
+              },
+              icon: const Icon(
+                Icons.menu,
+                size: 45,
+                color: DefaultColors.primaryColor,
+              )),
+        ],
       ),
       backgroundColor: DefaultColors.backgroudColor,
       shape: const Border(

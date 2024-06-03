@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
+import 'package:smart_eats/models/user/password_model.dart';
 import 'package:smart_eats/validators/utils_validators.dart';
 
+import '../../../contexts/user_context.dart';
 import '../../../models/user/user_model.dart';
+import '../../../services/http_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
+import '../response_modal.dart';
 
 class PasswordEdit extends StatefulWidget {
-  UserModel? usuarioModel;
-
+  PasswordModel? passwordModel;
+  late HttpService _httpService = HttpService();
+  late bool loading = false;
   PasswordEdit({super.key});
 
   @override
@@ -24,6 +30,7 @@ class _PasswordEditState extends State<PasswordEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final userContext = Provider.of<UserContext>(context);
     return Form(
       key: _formKey,
       child: Scaffold(
@@ -135,16 +142,47 @@ class _PasswordEditState extends State<PasswordEdit> {
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
                 child: Column(
                   children: [
+                    if(!widget.loading)
                     ConfirmButton(
                         label: 'Salvar Alterações',
-                        onPressed: () {
+                        onPressed: ()async {
                           if (_formKey.currentState!.validate()) {
-                            // widget.usuarioModel = UserModel(
-                            //   Nome: dsNomeController.text,
-                            //   Cpf: dsCpfController.text,
-                            //   Email: dsEmailController.text,
-                            // );
-                            // print('${widget.usuarioModel!.Nome},${widget.usuarioModel!.Cpf},${widget.usuarioModel!.Email}');
+                            setState(() {
+                              widget.loading = true;
+                            });
+                            try{
+                              widget.passwordModel = PasswordModel(
+                                SenhaAtual: dsSenhaAtualController.text,
+                                SenhaNova: dsSenhaNovaController.text,
+                                SenhaRepetida: dsSenhaRepeteController.text,
+                              );
+
+                              await widget._httpService
+                                  .put(
+                                '/usuarios/atualizar-senha/${userContext.Id}',
+                                widget.passwordModel!.toJson(),
+                              ).then((value) async {
+                                Navigator.push(context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ResponseModal(
+                                      texto: value,
+                                    ),
+                                  ),
+                                );
+                              });
+                            }catch (e) {
+                              var erro = e.toString();
+                              print(erro);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(erro),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              widget.loading = false;
+                            });
+
                           }
                         })
                   ],

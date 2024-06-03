@@ -1,53 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_eats/models/Menu/plate_model.dart';
 
-import '../../../models/user/create_user_model.dart';
+import '../../../contexts/user_context.dart';
+import '../../../enums/week_days.dart';
+import '../../../models/Menu/menu_model.dart';
+import '../../../services/menu/menu_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
 
 class CreateMenu extends StatefulWidget {
-
-  CreateMenu({super.key});
-
+  MenuService _service = MenuService();
+  final int companyId;
+  CreateMenu({super.key, required this.companyId});
+  late bool loading = false;
   @override
   State<CreateMenu> createState() => _CreateMenuState();
 }
 
 class _CreateMenuState extends State<CreateMenu> {
+
   final _formKey = GlobalKey<FormState>();
 
-  List<Map<String, dynamic>> _days = [
-    {
-      'day': 'Segunda',
-      'date': DateTime.now(),
-      'meals': ['Feijoada', 'Farofa rica']
-    },
+  List<MenuModel> listMenus = [
+    // MenuModel(DiaSemana: 'Segunda', Data: DateTime.now())
   ];
-  Map<String, String> _dayMap = {
-    'Segunda': 'Monday',
-    'Terça': 'Tuesday',
-    'Quarta': 'Wednesday',
-    'Quinta': 'Thursday',
-    'Sexta': 'Friday',
-  };
 
-  DateTime _startOfWeek =
-      DateTime.now().subtract(Duration(days: DateTime.now().weekday));
-  DateTime _endOfWeek =
-      DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
+  Future _feetchData()async{
+    widget.loading = true;
+    listMenus = await widget._service.GetMenuWeek(widget.companyId);
+    setState(() {
+      widget.loading = false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+      _feetchData();
+
     // Chama o método para carregar a lista de categorias quando o widget é iniciado
   }
 
-  TextEditingController dsNomeController = TextEditingController();
-  TextEditingController dsCpfController = TextEditingController();
-  TextEditingController dsEmailController = TextEditingController();
-  TextEditingController dsSenhaController = TextEditingController();
-  TextEditingController dsPerfilController = TextEditingController();
+  DateTime _startOfWeek =
+      DateTime.now().subtract(Duration(days: DateTime.now().weekday % 7));
+  DateTime _endOfWeek =
+      DateTime.now().add(Duration(days: 6 - (DateTime.now().weekday % 7)));
+
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Chama o método para carregar a lista de categorias quando o widget é iniciado
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -67,16 +74,20 @@ class _CreateMenuState extends State<CreateMenu> {
                 'Semana ${DateFormat('dd/MM').format(_startOfWeek)} - ${DateFormat('dd/MM').format(_endOfWeek)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              if(!widget.loading)
               Expanded(
                 child: ListView.builder(
-                  itemCount: _days.length,
+                  itemCount: listMenus.length,
                   itemBuilder: (context, index) {
                     return _buildDayCard(index);
                   },
                 ),
-              ),
+              )
+              else
+                CircularProgressIndicator(),
+              if(!widget.loading)
               ElevatedButton(
-                onPressed: _addDay,
+                onPressed: () => _addDay(widget.companyId),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: DefaultColors.backgroudColor,
                   shape: RoundedRectangleBorder(
@@ -86,6 +97,7 @@ class _CreateMenuState extends State<CreateMenu> {
                 ),
                 child: Text('Adicionar dia'),
               ),
+              if(!widget.loading)
               Container(
                 height: 100,
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
@@ -93,12 +105,21 @@ class _CreateMenuState extends State<CreateMenu> {
                   children: [
                     ConfirmButton(
                         label: 'Salvar',
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
+                        onPressed: () async{
+                          if (_formKey.currentState!.validate()) {
+                            var result = await widget._service.RegisterMenu(widget.companyId, listMenus.where((a) => a.Editavel == true).toList());
+                            if(result){
+                              print("deuCerto");
+                            }else{
+                              print("deuErrado");
+                            }
+                          }
                         })
                   ],
                 ),
-              ),
+              )
+              else
+                CircularProgressIndicator(),
             ],
           ),
         ),
@@ -124,38 +145,40 @@ class _CreateMenuState extends State<CreateMenu> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_days[index]['day']} ${DateFormat('dd/MM').format(_days[index]['date'])}',
+                  '${listMenus[index].DiaSemana} ${DateFormat('dd/MM').format(listMenus[index].Data)}',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: DefaultColors.primaryColor,
                   ),
                 ),
+                if(listMenus[index].Editavel)
                 IconButton(
                   icon: Icon(Icons.delete, color: DefaultColors.primaryColor),
                   onPressed: () {
                     setState(() {
-                      if (_days[index]['meals'].isEmpty) {
-                        _days.removeAt(index);
+                      if (listMenus[index].Pratos!.isEmpty) {
+                        listMenus.removeAt(index);
                       }
                     });
                   },
                 )
               ],
             ),
-            ..._days[index]['meals'].map<Widget>((meal) {
+            ...listMenus[index].Pratos!.map<Widget>((meal) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(meal, style: TextStyle(fontSize: 16)),
+                  Text(meal.Nome, style: TextStyle(fontSize: 16)),
+                  if(listMenus[index].Editavel)
                   IconButton(
                     icon: Icon(Icons.delete_outline,
                         color: DefaultColors.primaryColor),
                     onPressed: () {
                       setState(() {
-                        _days[index]['meals'].remove(meal);
-                        if (_days[index]['meals'].isEmpty) {
-                          _days.removeAt(index);
+                        listMenus[index].Pratos!.remove(meal);
+                        if (listMenus[index].Pratos!.isEmpty) {
+                          listMenus.removeAt(index);
                         }
                       });
                     },
@@ -163,6 +186,7 @@ class _CreateMenuState extends State<CreateMenu> {
                 ],
               );
             }).toList(),
+            if(listMenus[index].Editavel)
             TextField(
               controller: _mealController,
               decoration: InputDecoration(
@@ -171,19 +195,20 @@ class _CreateMenuState extends State<CreateMenu> {
               onSubmitted: (value) {
                 setState(() {
                   if (value.isNotEmpty) {
-                    _days[index]['meals'].add(value);
+                    listMenus[index].Pratos!.add(PlateModel(Nome: value));
                     _mealController.clear();
                   }
                 });
               },
             ),
             SizedBox(height: 8),
+            if(listMenus[index].Editavel)
             Center(
               child: ElevatedButton(
                 onPressed: () {
                   setState(() {
                     if (_mealController.text.isNotEmpty) {
-                      _days[index]['meals'].add(_mealController.text);
+                      listMenus[index].Pratos!.add(PlateModel(Nome: _mealController.text));
                       _mealController.clear();
                     }
                   });
@@ -204,20 +229,23 @@ class _CreateMenuState extends State<CreateMenu> {
     );
   }
 
-  void _addDay() {
+  void _addDay(int idCompany) {
     setState(() {
       String newDay;
       DateTime newDate;
-      if (_days.isEmpty) {
-        newDay = 'Segunda';
-        newDate = _startOfWeek.add(Duration(days: 1));
+      DateTime dataAtual = DateTime.now();
+      if (listMenus.isEmpty) {
+        print(dataAtual.weekday);
+        newDay = DayMap.weekDays.keys.toList()[dataAtual.weekday % 7];
+        newDate = dataAtual;
+        // newDate = _startOfWeek.add(Duration(days: 1));
       } else {
-        String lastDay = _days.last['day'];
-        int dayIndex = _dayMap.keys.toList().indexOf(lastDay);
-        newDay = _dayMap.keys.toList()[dayIndex + 1];
-        newDate = _days.last['date'].add(Duration(days: 1));
+        String lastDay = listMenus.last.DiaSemana;
+        int dayIndex = DayMap.weekDays.keys.toList().indexOf(lastDay);
+        newDay = DayMap.weekDays.keys.toList()[dayIndex + 1];
+        newDate = listMenus.last.Data.add(Duration(days: 1));
       }
-      _days.add({'day': newDay, 'date': newDate, 'meals': []});
+      listMenus.add(MenuModel(DiaSemana: newDay, Data: newDate, CompanyId: idCompany, Pratos: []));
     });
   }
 }

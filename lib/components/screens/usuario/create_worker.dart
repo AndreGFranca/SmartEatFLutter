@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
 import 'package:smart_eats/components/utils/custom_radio_button.dart';
 import 'package:smart_eats/validators/utils_validators.dart';
 
+import '../../../contexts/user_context.dart';
 import '../../../enums/type_user.dart';
 import '../../../models/user/create_user_model.dart';
+import '../../../services/user/user_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
 
 class CreateWorker extends StatefulWidget {
   late CreateUserModel? usuarioModel;
+  late String? IdUser;
+  late UserService _userService = UserService();
 
-  CreateWorker({this.usuarioModel = null, super.key});
+  CreateWorker({this.IdUser, super.key});
 
   @override
   State<CreateWorker> createState() => _CreateWorkerState();
@@ -21,19 +26,33 @@ class _CreateWorkerState extends State<CreateWorker> {
   final _formKey = GlobalKey<FormState>();
 
   final Map<int, String> _profileValues = TypeUser.ProfileValues;
+
   int _selectedProfile = 2; // Valor padrão do Dropdown
   int _ativo = 1;
+
+  Future<void> _fetchData() async {
+    widget.usuarioModel = await widget._userService.GetUser(widget.IdUser!);
+
+    dsNomeController.text = widget.usuarioModel!.Nome;
+    dsCpfController.text = widget.usuarioModel!.Cpf;
+    dsEmailController.text = widget.usuarioModel!.Email;
+    dsPerfilController.text = widget.usuarioModel!.Perfil.toString();
+    _ativo = widget.usuarioModel!.Ativo ? 1 : 0;
+    _selectedProfile =
+    widget.usuarioModel == null ? 1 : widget.usuarioModel!.Perfil;
+    setState(() {
+    });
+    print(widget.IdUser);
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.usuarioModel != null) {
-      dsNomeController.text = widget.usuarioModel!.Nome;
-      dsCpfController.text = widget.usuarioModel!.Cpf;
-      dsEmailController.text = widget.usuarioModel!.Email;
-      dsSenhaController.text = widget.usuarioModel!.Senha;
-      dsPerfilController.text = widget.usuarioModel!.Perfil.toString();
-      _ativo = widget.usuarioModel!.Ativo ? 1: 0;
-      _selectedProfile = widget.usuarioModel == null ? 1: widget.usuarioModel!.Perfil;
+    _profileValues.remove(0);
+    _profileValues.remove(1);
+    print(widget.IdUser);
+    if (widget.IdUser != null) {
+      _fetchData();
     }
     // Chama o método para carregar a lista de categorias quando o widget é iniciado
   }
@@ -46,11 +65,12 @@ class _CreateWorkerState extends State<CreateWorker> {
 
   @override
   Widget build(BuildContext context) {
+    final userContext = Provider.of<UserContext>(context);
     return Form(
       key: _formKey,
       child: Scaffold(
         appBar: GenericAppBar(
-          titleAppBar: 'Cadastro Colaborador',
+          titleAppBar: widget.IdUser == null? 'Editar Colaborador':'Cadastro Colaborador' ,
         ),
         body: Padding(
           padding: EdgeInsets.all(10.0),
@@ -177,11 +197,14 @@ class _CreateWorkerState extends State<CreateWorker> {
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             )),
-                        CustomRadioButton(value: _ativo, groupValue: 1, onChanged: (value){
-                          setState(() {
-                            _ativo = _ativo == 1? 0: 1;
-                          });
-                        }),
+                        CustomRadioButton(
+                            value: _ativo,
+                            groupValue: 1,
+                            onChanged: (value) {
+                              setState(() {
+                                _ativo = _ativo == 1 ? 0 : 1;
+                              });
+                            }),
                       ],
                     ),
                   ],
@@ -195,20 +218,43 @@ class _CreateWorkerState extends State<CreateWorker> {
                   children: [
                     ConfirmButton(
                         label: 'Salvar',
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             int selectedProfileValue = _selectedProfile;
                             print(selectedProfileValue);
-                            widget.usuarioModel = CreateUserModel(
-                              Nome: dsNomeController.text,
-                              Cpf: dsCpfController.text,
-                              Email: dsEmailController.text,
-                              Senha: dsSenhaController.text,
-                              Perfil: selectedProfileValue,
-                              Ativo: _ativo == 1,
-                            );
-                            print(
-                                '${widget.usuarioModel!.Nome},${widget.usuarioModel!.Cpf},${widget.usuarioModel!.Email},${widget.usuarioModel!.Ativo}');
+                            if (widget.IdUser == null) {
+                              widget.usuarioModel = CreateUserModel(
+                                  Nome: dsNomeController.text,
+                                  Cpf: dsCpfController.text,
+                                  Email: dsEmailController.text,
+                                  Senha: dsSenhaController.text,
+                                  Perfil: selectedProfileValue,
+                                  Ativo: _ativo == 1,
+                                  CompanyId: int.parse(userContext.CompanyId!));
+                              bool resultado = await widget._userService
+                                  .RegisterUser(widget.usuarioModel!);
+                              if (resultado)
+                                print("Deu bom");
+                              else
+                                print("Deu Ruim");
+                            }
+                            if (widget.IdUser != null){
+                              widget.usuarioModel = CreateUserModel(
+                                  Id: widget.IdUser,
+                                  Nome: dsNomeController.text,
+                                  Cpf: dsCpfController.text,
+                                  Email: dsEmailController.text,
+                                  Perfil: selectedProfileValue,
+                                  Ativo: _ativo == 1,
+                                  CompanyId: widget.usuarioModel!.CompanyId);
+
+                              bool resultado = await widget._userService
+                                  .UpdateUser(widget.usuarioModel!);
+                              if (resultado)
+                                print("Deu bom upload");
+                              else
+                                print("Deu Ruim upload");
+                            }
                           }
                         })
                   ],

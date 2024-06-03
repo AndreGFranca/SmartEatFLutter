@@ -9,7 +9,6 @@ class HttpService {
   late String authorization = '';
 
   Future<String?> HasAuthorization()async{
-    print(await storage.readToken());
     authorization = await storage.readToken() ?? '';
     return await storage.readToken() ?? '';
   }
@@ -24,12 +23,16 @@ class HttpService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load data');
+      try {
+        jsonDecode(response.body);
+        throw Exception("Erro de validação de campos, revise.");
+      } catch (e) {
+        throw Exception('${response.statusCode} - ${response.body}');
+      }
     }
   }
 
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
-    print(authorization);
     final response = await http.put(
       Uri.parse('$_apiUrl$endpoint'),
       headers: {
@@ -50,11 +53,20 @@ class HttpService {
         }
       }
     } else {
-      throw Exception('Failed to post data');
+      try {
+        throw Exception("Erro de validação de campos, revise.");
+      } catch (e) {
+        try {
+          jsonDecode(response.body);
+          throw Exception("Erro de validação de campos, revise.");
+        } catch (e) {
+          throw Exception('${response.statusCode} - ${response.body}');
+        }
+      }
     }
   }
 
-  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+  Future<dynamic> post(String endpoint, dynamic data ) async {
     final response = await http.post(
       Uri.parse('$_apiUrl$endpoint'),
       headers: {
@@ -75,7 +87,12 @@ class HttpService {
         }
       }
     } else {
-      throw Exception('Failed to post data');
+      try {
+        jsonDecode(response.body);
+        throw Exception("Erro de validação de campos, revise.");
+      } catch (e) {
+          throw Exception('${response.statusCode} - ${response.body}');
+      }
     }
   }
 }

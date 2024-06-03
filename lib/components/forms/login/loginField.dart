@@ -4,7 +4,9 @@ import '../../utils/label_input.dart';
 
 class LoginField extends StatelessWidget {
   final String text;
-  const LoginField({super.key, required this.text});
+  final TextEditingController controller;
+  late bool isPassword;
+  LoginField({super.key, required this.text, required this.controller, this.isPassword = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,8 @@ class LoginField extends StatelessWidget {
             ),
           ),
           TextFormField(
+            controller: controller,
+            obscureText: isPassword,
             decoration: InputDecoration(
               fillColor: Colors.white,
               filled: true,
