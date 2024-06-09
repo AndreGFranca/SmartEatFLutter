@@ -5,15 +5,26 @@ class UserService{
   final _httpService = HttpService();
   final String _baseUserEndPoint = "/usuarios";
 
-  Future<bool> RegisterUser(CreateUserModel createUsuario) async {
+  Future<dynamic> RegisterUser(CreateUserModel createUsuario) async {
     try{
       String endpoint = '/cadastro';
-      await _httpService.post('$_baseUserEndPoint$endpoint', createUsuario.toJson());
-      return true;
+      var result = await _httpService.post('$_baseUserEndPoint$endpoint', createUsuario.toJson());
+      return result;
     }catch(e){
-      return false;
+      throw e;
     }
   }
+
+  Future<bool> UpdateUser(CreateUserModel updateUser) async {
+    try{
+      String endpoint = '/atualizar-usuario/${updateUser.Id}';
+      var result = await _httpService.put('$_baseUserEndPoint$endpoint',updateUser.toJsonUpdate());
+      return result;
+    }catch(e){
+      throw e;
+    }
+  }
+
 
   Future<CreateUserModel> GetUser(String userId) async {
     try{
@@ -34,14 +45,15 @@ class UserService{
       throw e;
     }
   }
-  Future<bool> UpdateUser(CreateUserModel updateUser) async {
-    try{
-      String endpoint = '/atualizar-usuario/${updateUser.Id}';
-      var result = await _httpService.put('$_baseUserEndPoint$endpoint',updateUser.toJsonUpdate());
-      return true;
-    }catch(e){
-      return false;
-    }
+
+  Future<List<dynamic>> ListWorkers(int companyId) async {
+    return await _httpService
+        .get('/usuarios/lista-funcionarios-empresa/$companyId');
+  }
+
+  Future<String> Logout() async {
+    return await _httpService
+        .post('$_baseUserEndPoint/logout',{});
   }
 
 }

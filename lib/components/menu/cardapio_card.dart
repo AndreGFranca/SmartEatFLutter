@@ -6,6 +6,9 @@ class CardapioCard extends StatefulWidget {
   final String diaSemana;
   final List<String> pratos;
   final Function onChange;
+  final bool editable;
+  late String? horario;
+
 
   // final bool isSelected;
   bool _isSelected = false;
@@ -15,6 +18,8 @@ class CardapioCard extends StatefulWidget {
     required this.diaSemana,
     required this.pratos,
     required this.onChange,
+    required this.editable,
+    this.horario = null,
     // required this.isSelected,
   });
 
@@ -57,6 +62,7 @@ class _CardapioCardState extends State<CardapioCard> {
                     color: DefaultColors.primaryColor,
                   ),
                 ),
+                if(widget.editable)
                 if (widget._isSelected)
                   IconButton(
                     onPressed: () {
@@ -78,6 +84,8 @@ class _CardapioCardState extends State<CardapioCard> {
                     icon:
                         Icon(Icons.radio_button_unchecked, color: Colors.grey),
                   ),
+                if(widget.horario != null)
+                  Text(widget.horario!.replaceFirst(RegExp('.{3}\$'), ""))
               ],
             ),
             Padding(

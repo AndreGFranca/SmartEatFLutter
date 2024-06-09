@@ -41,7 +41,6 @@ class HttpService {
       },
       body: jsonEncode(data),
     );
-    print('$_apiUrl$endpoint');
     if (response.statusCode == 200 || response.statusCode == 201) {
       try {
         return jsonDecode(response.body);

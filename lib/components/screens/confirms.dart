@@ -1,39 +1,55 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_eats/components/app_bars/generic_app_bar.dart';
+import 'package:smart_eats/models/confirm/confirm_item_count_table.dart';
+import 'package:smart_eats/services/confirm/confirm_service.dart';
 import '../utils/default_colors.dart';
 
 class Confirms extends StatefulWidget {
-  Confirms({super.key});
-
+  late bool loading = false;
+  final int companyId;
+  Confirms({super.key, required this.companyId});
+  ConfirmService _confirmService = ConfirmService();
   @override
   State<Confirms> createState() => _ConfirmsState();
 }
 
 class _ConfirmsState extends State<Confirms> {
   final _formKey = GlobalKey<FormState>();
-  List<Map<String, String>> horarios = [
-    {"horario": "11", "qtdPessoas": "20"},
-    {"horario": "12", "qtdPessoas": "30"},
-    {"horario": "13", "qtdPessoas": "5"},
-    {"horario": "14", "qtdPessoas": "15"},
+  List<ConfirmItemCountTable> horarios = [
   ];
   TextEditingController dsJustifyController = TextEditingController();
 
+  Future _fetchData()async{
+    setState(() {
+      widget.loading = true;
+    });
+    horarios = await widget._confirmService.GetCountConfirmsDate(widget.companyId);
+    setState(() {
+      widget.loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+      _fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Scaffold(
-        appBar: GenericAppBar(
-          titleAppBar: 'Colaboradores',
-        ),
-        body: Padding(
+    return Scaffold(
+      appBar: GenericAppBar(
+        titleAppBar: 'Confirmações',
+      ),
+      body: SafeArea(
+        child: Container(
           padding: EdgeInsets.all(10.0),
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                if(!widget.loading)
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -59,12 +75,12 @@ class _ConfirmsState extends State<Confirms> {
                             ),
                           )),
                         ],
-                        rows: horarios.map((colaborador) {
+                        rows: horarios.map((confirms) {
                           return DataRow(cells: [
                             DataCell(
                               Center(
                                 child: Text(
-                                  colaborador['horario']!,
+                                  confirms.HorarioAlmoco,
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
@@ -75,7 +91,7 @@ class _ConfirmsState extends State<Confirms> {
                             ),
                             DataCell(Center(
                               child: Text(
-                                colaborador['qtdPessoas']!,
+                                confirms.QtdPessoas.toString(),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -88,11 +104,13 @@ class _ConfirmsState extends State<Confirms> {
                       ),
                     ),
                   ),
-                ),
+                )
+                else
+                  Center(child: CircularProgressIndicator(),)
               ]),
         ),
-        backgroundColor: DefaultColors.backgroudColor,
       ),
+      backgroundColor: DefaultColors.backgroudColor,
     );
   }
 }

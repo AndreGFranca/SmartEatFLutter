@@ -9,6 +9,7 @@ class MenuModel {
   final DateTime Data;
   late bool Editavel;
   late List<PlateModel>? Pratos;
+  late String? HorarioAlmoco;
 
   MenuModel({
     required this.DiaSemana,
@@ -16,6 +17,7 @@ class MenuModel {
     required this.CompanyId,
     this.Pratos = null,
     this.Editavel = true,
+    this.HorarioAlmoco = null
   });
 
   Map<String, dynamic> toJson() {
@@ -36,9 +38,10 @@ class MenuModel {
       Data: DateTime.parse(json['data']),
       CompanyId: json['idEmpresa'],
       Editavel: json['editable'],
-      Pratos: (json['platesDay'] as List<dynamic>)
+      Pratos: json['platesDay'] == null ? [] : (json['platesDay'] as List<dynamic>)
           .map((p) => PlateModel.fromJson(p))
           .toList(),
+      HorarioAlmoco: json['horarioAlmoco'] ?? null,
     );
   }
 }

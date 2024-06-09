@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_eats/components/app_bars/main_app_bar_menu.dart';
+import 'package:smart_eats/components/screens/response_modal.dart';
 import 'package:smart_eats/components/screens/select_hour.dart';
 import 'package:smart_eats/components/utils/confirm_button.dart';
 import 'package:smart_eats/services/confirm/confirm_service.dart';
@@ -24,7 +26,7 @@ class Menu extends StatefulWidget {
   List<String> listaDeHorarios = [];
   final int companyId;
   final String idFuncionario;
-  List<int> listaDeConfimacoes = [];
+  HashSet<int> listaDeConfimacoes = HashSet<int>();
   List<MenuModel> listMenus = [
     // MenuModel(DiaSemana: 'Segunda', Data: DateTime.now())
   ];
@@ -46,8 +48,9 @@ class _MenuState extends State<Menu> {
     setState(() {
       widget.loading = true;
     });
-    widget.listMenus = await widget._service.GetMenuWeek(widget.companyId);
+    widget.listMenus = await widget._service.GetMenuWeekWorker(widget.companyId);
     widget.listaDeHorarios = await widget._confirmService.GetAvailableTimes();
+    widget.listaDeConfimacoes.clear();
     setState(() {
       widget.loading = false;
     });
@@ -115,13 +118,16 @@ class _MenuState extends State<Menu> {
                         widget.listaDeConfimacoes.remove(index);
                       }
                     },
+                    editable: widget.listMenus[index].Editavel,
+                    horario: widget.listMenus[index].HorarioAlmoco,
                   );
                 },
               ),
             )
             else
-              CircularProgressIndicator(),
-            Container(
+              Center(child: CircularProgressIndicator()),
+            if(!widget.loading)
+              Container(
               height: 150,
               padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
               child: Column(
@@ -161,28 +167,58 @@ class _MenuState extends State<Menu> {
                       onPressed: () async {
                         if (widget.listaDeConfimacoes.isNotEmpty &&
                             widget._selectedHour != null) {
-                          List<ConfirmModel> listConfirmacoes =
-                              widget.listaDeConfimacoes
-                                  .map((e) => ConfirmModel(
-                                        DataDeConfirmacao: widget.listMenus[e].Data,
-                                        HoraConfirmacao: widget.listaDeHorarios[widget._selectedHour!],
-                                        IdEmpresa: widget.companyId,
-                                        IdFuncionario: widget.idFuncionario
-                                      ))
-                                  .toList();
-                          print(listConfirmacoes);
-                          var result = await widget._confirmService.RegisterConfirm(listConfirmacoes);
-                          if(result){
-                            print("funfou");
-                          }else{
-                            print("falhou");
+                          try{
+                            setState(() {
+                              widget.loading = true;
+                            });
+                            List<ConfirmModel> listConfirmacoes =
+                            widget.listaDeConfimacoes
+                                .map((e) => ConfirmModel(
+                                DataDeConfirmacao: widget.listMenus[e].Data,
+                                HoraConfirmacao: widget.listaDeHorarios[widget._selectedHour!],
+                                IdEmpresa: widget.companyId,
+                                IdFuncionario: widget.idFuncionario
+                            ))
+                                .toList();
+                            var result = await widget._confirmService.RegisterConfirm(listConfirmacoes).then((value){
+                              Navigator.push(context,
+                                MaterialPageRoute(
+                                  builder: (context) => ResponseModal(
+                                    texto: value,
+                                  ),
+                                ),
+                              ).then((value)async{
+                                await _feetchData();
+                                setState(() {
+
+                                  widget.loading = false;
+                                });
+                              });
+                            });
+
+
+                          }catch(e){
+                            var erro = e.toString();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(erro),
+                              ),
+                            );
+                            await _feetchData();
+                            setState(() {
+                              widget.loading = false;
+                            });
+
                           }
+
 
                         }
                       })
                 ],
               ),
-            ),
+            )
+            else
+              Center(child: CircularProgressIndicator()),
           ],
         ),
       ),

@@ -37,158 +37,159 @@ class _PasswordEditState extends State<PasswordEdit> {
         appBar: GenericAppBar(
           titleAppBar: 'Alterar Senha',
         ),
-        body: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                obscureText: true,
-                validator: (String? value) {
-                  if (DefaultValidators.textValidator(value)) {
-                    return 'Insira a senha atual';
-                  }
-                  return null;
-                },
-                controller: dsSenhaAtualController,
-                decoration: const InputDecoration(
-                  // hintText: 'Qual é o seu nome?',
-                  labelText: 'Senha Atual',
-                  labelStyle: TextStyle(
-                    color: DefaultColors.primaryColor,
-                    fontFamily: 'Roboto-Regular',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color.fromRGBO(223, 223, 223, 0.5),
-                      width: 1,
+        body: SafeArea(
+          child: Container(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  obscureText: true,
+                  validator: (String? value) {
+                    if (DefaultValidators.textValidator(value)) {
+                      return 'Insira a senha atual';
+                    }
+                    return null;
+                  },
+                  controller: dsSenhaAtualController,
+                  decoration: const InputDecoration(
+                    // hintText: 'Qual é o seu nome?',
+                    labelText: 'Senha Atual',
+                    labelStyle: TextStyle(
+                      color: DefaultColors.primaryColor,
+                      fontFamily: 'Roboto-Regular',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(223, 223, 223, 0.5),
+                        width: 1,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              TextFormField(
-                obscureText: true,
-                validator: (String? value) {
-                  if (DefaultValidators.textValidator(value)) {
-                    return 'Insira uma nova senha';
-                  }
-                  return null;
-                },
-                controller: dsSenhaNovaController,
-                decoration: const InputDecoration(
-                  // hintText: 'Qual é o seu nome?',
-
-                  labelText: 'Nova Senha',
-                  labelStyle: TextStyle(
-                    color: DefaultColors.primaryColor,
-                    fontFamily: 'Roboto-Regular',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color.fromRGBO(223, 223, 223, 0.5),
-                      width: 1,
+                TextFormField(
+                  obscureText: true,
+                  validator: (String? value) {
+                    if (DefaultValidators.textValidator(value)) {
+                      return 'Insira uma nova senha';
+                    }
+                    return null;
+                  },
+                  controller: dsSenhaNovaController,
+                  decoration: const InputDecoration(
+                    // hintText: 'Qual é o seu nome?',
+          
+                    labelText: 'Nova Senha',
+                    labelStyle: TextStyle(
+                      color: DefaultColors.primaryColor,
+                      fontFamily: 'Roboto-Regular',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(223, 223, 223, 0.5),
+                        width: 1,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              TextFormField(
-                obscureText: true,
-                validator: (String? value) {
-                  if (DefaultValidators.textValidator(value)) {
-                    return 'Repita a senha';
-                  }
-                  if(dsSenhaNovaController.text != dsSenhaRepeteController.text){
-                    return 'Senhas diferentes';
-                  }
-                  return null;
-                },
-                controller: dsSenhaRepeteController,
-                decoration: const InputDecoration(
-                  // hintText: 'Qual é o seu nome?',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color.fromRGBO(223, 223, 223, 0.5),
-                      width: 1,
+                TextFormField(
+                  obscureText: true,
+                  validator: (String? value) {
+                    if (DefaultValidators.textValidator(value)) {
+                      return 'Repita a senha';
+                    }
+                    if(dsSenhaNovaController.text != dsSenhaRepeteController.text){
+                      return 'Senhas diferentes';
+                    }
+                    return null;
+                  },
+                  controller: dsSenhaRepeteController,
+                  decoration: const InputDecoration(
+                    // hintText: 'Qual é o seu nome?',
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(223, 223, 223, 0.5),
+                        width: 1,
+                      ),
+                    ),
+                    labelText: 'Repita a nova senha',
+                    labelStyle: TextStyle(
+                      color: DefaultColors.primaryColor,
+                      fontFamily: 'Roboto-Regular',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
-                  labelText: 'Repita a nova senha',
-                  labelStyle: TextStyle(
-                    color: DefaultColors.primaryColor,
-                    fontFamily: 'Roboto-Regular',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    'Uma senha forte protege a sua conta',
+                    style: TextStyle(
+                      color: Color.fromRGBO(0, 0, 0, 0.4),
+                      fontFamily: 'Roboto-Regular',
+                      fontSize: 15,
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  'Uma senha forte protege a sua conta',
-                  style: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 0.4),
-                    fontFamily: 'Roboto-Regular',
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-              Expanded(child: SizedBox()),
-              Container(
-                height: 100,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-                child: Column(
-                  children: [
-                    if(!widget.loading)
-                    ConfirmButton(
-                        label: 'Salvar Alterações',
-                        onPressed: ()async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              widget.loading = true;
-                            });
-                            try{
-                              widget.passwordModel = PasswordModel(
-                                SenhaAtual: dsSenhaAtualController.text,
-                                SenhaNova: dsSenhaNovaController.text,
-                                SenhaRepetida: dsSenhaRepeteController.text,
-                              );
-
-                              await widget._httpService
-                                  .put(
-                                '/usuarios/atualizar-senha/${userContext.Id}',
-                                widget.passwordModel!.toJson(),
-                              ).then((value) async {
-                                Navigator.push(context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ResponseModal(
-                                      texto: value,
+                Expanded(child: SizedBox()),
+                Container(
+                  height: 100,
+                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+                  child: Column(
+                    children: [
+                      if(!widget.loading)
+                      ConfirmButton(
+                          label: 'Salvar Alterações',
+                          onPressed: ()async {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                widget.loading = true;
+                              });
+                              try{
+                                widget.passwordModel = PasswordModel(
+                                  SenhaAtual: dsSenhaAtualController.text,
+                                  SenhaNova: dsSenhaNovaController.text,
+                                  SenhaRepetida: dsSenhaRepeteController.text,
+                                );
+          
+                                await widget._httpService
+                                    .put(
+                                  '/usuarios/atualizar-senha/${userContext.Id}',
+                                  widget.passwordModel!.toJson(),
+                                ).then((value) async {
+                                  Navigator.push(context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ResponseModal(
+                                        texto: value,
+                                      ),
                                     ),
+                                  );
+                                });
+                              }catch (e) {
+                                var erro = e.toString();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(erro),
                                   ),
                                 );
+                              }
+                              setState(() {
+                                widget.loading = false;
                               });
-                            }catch (e) {
-                              var erro = e.toString();
-                              print(erro);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(erro),
-                                ),
-                              );
+          
                             }
-                            setState(() {
-                              widget.loading = false;
-                            });
-
-                          }
-                        })
-                  ],
+                          })
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         backgroundColor: DefaultColors.backgroudColor,

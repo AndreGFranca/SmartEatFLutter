@@ -10,6 +10,7 @@ import '../../../models/Menu/menu_model.dart';
 import '../../../services/menu/menu_service.dart';
 import '../../utils/confirm_button.dart';
 import '../../utils/default_colors.dart';
+import '../response_modal.dart';
 
 class CreateMenu extends StatefulWidget {
   MenuService _service = MenuService();
@@ -25,11 +26,12 @@ class _CreateMenuState extends State<CreateMenu> {
   final _formKey = GlobalKey<FormState>();
 
   List<MenuModel> listMenus = [
-    // MenuModel(DiaSemana: 'Segunda', Data: DateTime.now())
   ];
 
   Future _feetchData()async{
-    widget.loading = true;
+    setState(() {
+      widget.loading = true;
+    });
     listMenus = await widget._service.GetMenuWeek(widget.companyId);
     setState(() {
       widget.loading = false;
@@ -40,21 +42,12 @@ class _CreateMenuState extends State<CreateMenu> {
   void initState() {
     super.initState();
       _feetchData();
-
-    // Chama o método para carregar a lista de categorias quando o widget é iniciado
   }
 
   DateTime _startOfWeek =
       DateTime.now().subtract(Duration(days: DateTime.now().weekday % 7));
   DateTime _endOfWeek =
       DateTime.now().add(Duration(days: 6 - (DateTime.now().weekday % 7)));
-
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // Chama o método para carregar a lista de categorias quando o widget é iniciado
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -64,63 +57,95 @@ class _CreateMenuState extends State<CreateMenu> {
         appBar: GenericAppBar(
           titleAppBar: 'Cadastro Cardápio',
         ),
-        body: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Semana ${DateFormat('dd/MM').format(_startOfWeek)} - ${DateFormat('dd/MM').format(_endOfWeek)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              if(!widget.loading)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: listMenus.length,
-                  itemBuilder: (context, index) {
-                    return _buildDayCard(index);
-                  },
+        body: SafeArea(
+          child: Container(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Semana ${DateFormat('dd/MM').format(_startOfWeek)} - ${DateFormat('dd/MM').format(_endOfWeek)}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              )
-              else
-                CircularProgressIndicator(),
-              if(!widget.loading)
-              ElevatedButton(
-                onPressed: () => _addDay(widget.companyId),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: DefaultColors.backgroudColor,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: DefaultColors.primaryColor),
-                    borderRadius: BorderRadius.circular(20),
+                if(!widget.loading)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: listMenus.length,
+                    itemBuilder: (context, index) {
+                      return _buildDayCard(index);
+                    },
                   ),
+                )
+                else
+                  Center(child: CircularProgressIndicator()),
+                if(!widget.loading)
+                ElevatedButton(
+                  onPressed: () => _addDay(widget.companyId),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: DefaultColors.backgroudColor,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: DefaultColors.primaryColor),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text('Adicionar dia'),
                 ),
-                child: Text('Adicionar dia'),
-              ),
-              if(!widget.loading)
-              Container(
-                height: 100,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-                child: Column(
-                  children: [
-                    ConfirmButton(
-                        label: 'Salvar',
-                        onPressed: () async{
-                          if (_formKey.currentState!.validate()) {
-                            var result = await widget._service.RegisterMenu(widget.companyId, listMenus.where((a) => a.Editavel == true).toList());
-                            if(result){
-                              print("deuCerto");
-                            }else{
-                              print("deuErrado");
+                if(!widget.loading)
+                Container(
+                  height: 100,
+                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+                  child: Column(
+                    children: [
+                      ConfirmButton(
+                          label: 'Salvar',
+                          onPressed: () async{
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                widget.loading = true;
+                              });
+                              try{
+                                var result = await widget._service.RegisterMenu(widget.companyId, listMenus.where((a) => a.Editavel == true).toList())
+                                .then((value){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ResponseModal(
+                                        texto: value,
+                                      ),
+                                    ),
+                                  ).then((value){
+                                    setState(() {
+                                      widget.loading = true;
+                                    });
+                                    _feetchData();
+                                    setState(() {
+                                      widget.loading = false;
+                                    });
+                                  });
+                                });
+
+                              }catch(e){
+                                var erro = e.toString();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(erro),
+                                ),
+                                );
+                                setState(() {
+                                  widget.loading = false;
+                                });
+                              }
+
                             }
-                          }
-                        })
-                  ],
-                ),
-              )
-              else
-                CircularProgressIndicator(),
-            ],
+                          })
+                    ],
+                  ),
+                )
+                else
+                  Center(child: CircularProgressIndicator()),
+              ],
+            ),
           ),
         ),
         backgroundColor: DefaultColors.backgroudColor,
@@ -235,7 +260,6 @@ class _CreateMenuState extends State<CreateMenu> {
       DateTime newDate;
       DateTime dataAtual = DateTime.now();
       if (listMenus.isEmpty) {
-        print(dataAtual.weekday);
         newDay = DayMap.weekDays.keys.toList()[dataAtual.weekday % 7];
         newDate = dataAtual;
         // newDate = _startOfWeek.add(Duration(days: 1));

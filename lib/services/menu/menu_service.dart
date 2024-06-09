@@ -1,7 +1,4 @@
-import 'package:intl/intl.dart';
 import 'package:smart_eats/models/Menu/menu_model.dart';
-import 'package:smart_eats/models/Menu/plate_model.dart';
-
 import '../http_service.dart';
 
 class MenuService {
@@ -12,7 +9,6 @@ class MenuService {
     String url = '$_baseMenusEndPoint/obter-todos-cardapios-empresa/$idEmpresa';
 
     var resultado = await _httpService.get(url) as List<dynamic>;
-    print(resultado);
     return resultado
         .map(
           (e) => MenuModel.fromJson(e),
@@ -20,23 +16,27 @@ class MenuService {
         .toList();
   }
 
-  Future<bool> RegisterMenu(
+  Future<List<MenuModel>> GetMenuWeekWorker(int idEmpresa) async {
+    String url = '$_baseMenusEndPoint/obter-todos-cardapios-funcionario/$idEmpresa';
+
+    var resultado = await _httpService.get(url) as List<dynamic>;
+    return resultado
+        .map(
+          (e) => MenuModel.fromJson(e),
+    )
+        .toList();
+  }
+
+  Future<dynamic> RegisterMenu(
     int idEmpresa,
     List<MenuModel> listMenuModel,
   ) async {
-    String _startOfWeek = DateFormat('yyyy-MM-dd').format(
-      DateTime.now().subtract(Duration(days: DateTime.now().weekday)),
-    );
-    String _endOfWeek = DateFormat('yyyy-MM-dd').format(
-      DateTime.now().add(Duration(days: 6 - DateTime.now().weekday)),
-    );
     try {
       String url = '$_baseMenusEndPoint/cadastrar/$idEmpresa';
       var req = [...listMenuModel.map((e) => e.toJson())];
-      print(req);
-      await _httpService.post(url, req);
+      var result = await _httpService.post(url, req);
 
-      return true;
+      return result;
     } catch (e) {
       throw e;
     }

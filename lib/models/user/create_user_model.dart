@@ -43,4 +43,16 @@ class CreateUserModel {
       "typeUser": Perfil,
     };
   }
+
+  factory CreateUserModel.fromJson(Map<String, dynamic> json) {
+    return CreateUserModel(
+      Id: json['id'],
+      Nome: json['name'],
+      Cpf: json['cpf'],
+      Email: json['userName'],
+      Perfil: json['typeUser'],
+      Ativo: json['ativo'],
+      CompanyId: json['id_Company'],
+    );
+  }
 }
