@@ -73,7 +73,7 @@ class _CreateWorkerState extends State<CreateWorker> {
       key: _formKey,
       child: Scaffold(
         appBar: GenericAppBar(
-          titleAppBar: widget.IdUser == null
+          titleAppBar: widget.IdUser != null
               ? 'Editar Colaborador'
               : 'Cadastro Colaborador',
         ),
@@ -271,7 +271,7 @@ class _CreateWorkerState extends State<CreateWorker> {
                                       CompanyId: widget.usuarioModel!.CompanyId);
           
                                   await widget._userService
-                                      .RegisterUser(widget.usuarioModel!)
+                                      .UpdateUser(widget.usuarioModel!)
                                       .then((value) {
                                     Navigator.push(
                                       context,
@@ -280,10 +280,8 @@ class _CreateWorkerState extends State<CreateWorker> {
                                           texto: value,
                                         ),
                                       ),
-                                    );
-                                    _fetchData();
-                                    setState(() {
-                                      widget.loading = false;
+                                    ).then((value){
+                                      Navigator.pop(context);
                                     });
                                   });
                                 }

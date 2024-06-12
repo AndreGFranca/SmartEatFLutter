@@ -199,7 +199,6 @@ class _PerfilEditState extends State<PerfilEdit> {
                                   Cpf: dsCpfController.text,
                                   Email: dsEmailController.text,
                                 );
-          
                                 var retorno = await widget._httpService
                                     .put(
                                   '/usuarios/atualizar/${widget.usuarioModel!.Id}',

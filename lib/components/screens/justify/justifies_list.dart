@@ -70,8 +70,11 @@ class _JustifiesListState extends State<JustifiesList> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (!widget.loading)
-                if (widget.justifies.isNotEmpty)
+              if (widget.loading)
+                Center(
+                  child: CircularProgressIndicator(),
+                )
+              else if (widget.justifies.isNotEmpty)
                   Expanded(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -142,10 +145,8 @@ class _JustifiesListState extends State<JustifiesList> {
                       ),
                     ),
                   )
-                else
-                  Center(
-                    child: CircularProgressIndicator(),
-                  ),
+              else
+                Center(child: Text("Sem resultados")),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +156,7 @@ class _JustifiesListState extends State<JustifiesList> {
                         color: DefaultColors.primaryColor),
                     onPressed: () {},
                   ),
-                  for (int i = 1; i <= 3; i++)
+                  for (int i = 1; i <= 1; i++)
                     TextButton(
                       onPressed: () {},
                       child: Text(

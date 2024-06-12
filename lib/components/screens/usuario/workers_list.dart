@@ -21,19 +21,14 @@ class WorkersList extends StatefulWidget {
 
 class _WorkersListState extends State<WorkersList> {
   final _formKey = GlobalKey<FormState>();
-
-  // List<Map<String, String>> colaboradores = [
-  //   {"nome": "Airfryer de Souza", "perfil": "Rh", "ativo": "true"},
-  //   {"nome": "Frigideira Alves de ...", "perfil": "Clb", "ativo": "true"},
-  //   {"nome": "Panela Lopes", "perfil": "Czn", "ativo": "true"},
-  //   {"nome": "Fogão da Silva", "perfil": "Clb", "ativo": "true"},
-  // ];
+  TextEditingController dsNomeController = TextEditingController();
   Future _fetchData() async {
     setState(() {
       widget.loading = true;
     });
     try {
-      await widget._userService.ListWorkers(widget.companyId).then((value) {
+      String? nome = dsNomeController.text.length > 3? dsNomeController.text: null;
+      await widget._userService.ListWorkers(widget.companyId,nome).then((value) {
         widget.colaboradores = [];
         value.forEach((element) {
           widget.colaboradores.add({
@@ -82,7 +77,13 @@ class _WorkersListState extends State<WorkersList> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
+                TextFormField(
+                  controller: dsNomeController,
+                  onChanged: (value)async{
+                    if(value.length > 3 || value.isEmpty){
+                      await _fetchData();
+                    }
+                  },
                   decoration: InputDecoration(
                     hintText: 'Pesquisar Colaborador',
                     border: OutlineInputBorder(
@@ -96,9 +97,12 @@ class _WorkersListState extends State<WorkersList> {
                   ),
                 ),
                 SizedBox(height: 20),
-                if (!widget.loading)
-                  if (widget.colaboradores.isNotEmpty)
-                    Expanded(
+                if (widget.loading)
+                  Center(
+                    child: CircularProgressIndicator(),
+                  )
+                else if (widget.colaboradores.isNotEmpty && !widget.loading)
+                  Expanded(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
@@ -144,7 +148,9 @@ class _WorkersListState extends State<WorkersList> {
                                             IdUser: colaborador['id'],
                                           ),
                                         ),
-                                      );
+                                      ).then((value)async{
+                                        await _fetchData();
+                                      });
                                     },
                                   ),
                                 ],
@@ -154,10 +160,9 @@ class _WorkersListState extends State<WorkersList> {
                         ),
                       ),
                     )
-                  else
-                    Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                else
+                  Center(child: Text("Sem resultados")),
+
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -167,7 +172,7 @@ class _WorkersListState extends State<WorkersList> {
                           color: DefaultColors.primaryColor),
                       onPressed: () {},
                     ),
-                    for (int i = 1; i <= 3; i++)
+                    for (int i = 1; i <= 1; i++)
                       TextButton(
                         onPressed: () {},
                         child: Text(

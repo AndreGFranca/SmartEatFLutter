@@ -15,7 +15,7 @@ class UserService{
     }
   }
 
-  Future<bool> UpdateUser(CreateUserModel updateUser) async {
+  Future<String> UpdateUser(CreateUserModel updateUser) async {
     try{
       String endpoint = '/atualizar-usuario/${updateUser.Id}';
       var result = await _httpService.put('$_baseUserEndPoint$endpoint',updateUser.toJsonUpdate());
@@ -46,9 +46,9 @@ class UserService{
     }
   }
 
-  Future<List<dynamic>> ListWorkers(int companyId) async {
+  Future<List<dynamic>> ListWorkers(int companyId,String? nome) async {
     return await _httpService
-        .get('/usuarios/lista-funcionarios-empresa/$companyId');
+        .get('/usuarios/lista-funcionarios-empresa/$companyId?nome=${nome??""}');
   }
 
   Future<String> Logout() async {
