@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_eats/components/screens/reset_password/forget_password.dart';
 import 'package:smart_eats/contexts/user_context.dart';
 
 import '../../models/user/login_model.dart';
@@ -117,7 +118,26 @@ class _LoginFormState extends State<LoginForm> {
                       else
                         CircularProgressIndicator(),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) =>
+                          //         SelectHour(widget.listaDeHorarios),
+                          //   ),
+                          // ).then((value) {
+                          //   setState(() {
+                          //     widget._selectedHour = value;
+                          //   });
+                          // });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ForgetPassWord(),
+
+                            ),
+                          );
+                        },
                         child: TextLabel(
                           text: 'Esqueci Minha Senha',
                         ),

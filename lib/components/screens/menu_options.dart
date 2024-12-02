@@ -43,7 +43,7 @@ class _MenuOptionsState extends State<MenuOptions> {
     //     4: 'Cozinha',
     //   };
     return Scaffold(
-      appBar: GenericAppBar(
+      appBar: const GenericAppBar(
         titleAppBar: 'Menu',
       ),
       body: SafeArea(
@@ -139,7 +139,6 @@ class _MenuOptionsState extends State<MenuOptions> {
                         );
                       },
                       icon: Icons.draw_outlined),
-                  if(userContext.typeUser == "1" || userContext.typeUser == "4")
                   MenuItem(
                       text: 'Confirmações',
                       onClick: () {
@@ -154,7 +153,7 @@ class _MenuOptionsState extends State<MenuOptions> {
                 ],
               )
               else
-                Center(child: CircularProgressIndicator()),
+                const Center(child: CircularProgressIndicator()),
               MenuItem(
                   text: 'Sair',
                   onClick: ()async {
